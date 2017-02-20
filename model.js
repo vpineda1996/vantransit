@@ -32,20 +32,26 @@ function NextBusSchedule() {
   /** @type {Array.<Departure>} */
   this.allDepartures = [];
 
+  /**
+   * @param {Array.<Departure>} aNextBus
+   * @return {NextBusSchedule}
+   */
   this.append = function (aNextBus) {
     this._removeOldBuses(aNextBus);
     Array.prototype.push.apply(this.allDepartures, aNextBus);
     this._appendToMaps(aNextBus);
     return this;
   };
-
+  /**
+   * @param {Array.<BusStop>} aBusStops
+   */
   this.appendStops = function (aBusStops) {
-    Array.prototype.push.apply(this.proximity, aBusStops);
-
+    this._appendStops(aBusStops);
+    return this;
   };
 
   /**
-   * @param {Array.<Departure>}aNextBus
+   * @param {Array.<Departure>} aNextBus
    * @private
    */
   this._removeOldBuses = function (aNextBus) {
@@ -63,7 +69,38 @@ function NextBusSchedule() {
       }
     })
   };
+  /**
+   * @param {Array.<BusStop>} aBusStops
+   * @private
+   */
+  this._appendStops = function (aBusStops) {
+    var that = this;
+    aBusStops.forEach(function (bs) {
+      if(that.stops[bs.number] === undefined) {
+        that.stops[bs.number] = {}
+      }
+      if(that.stops[bs.number][bs.route] === undefined) {
+        that.stops[bs.number][bs.route] = [];
+        that.proximity.push({
+          bus: bs,
+          dist: bs.distance
+        });
+      }
+      if(that.routes[bs.route] === undefined) {
+        that.routes[bs.route] = {}
+      }
+      if(that.routes[bs.route][bs.number] === undefined) {
+        that.routes[bs.route][bs.number] = []
+      }
+    });
+    this.rebuildProximityMap();
+    return this;
+  }
 
+  /**
+   * @param {Array.<Departure>} aNextBus
+   * @private
+   */
   this._appendToMaps = function (aNextBus) {
     var that = this;
     aNextBus.forEach(function (nb) {
@@ -87,10 +124,6 @@ function NextBusSchedule() {
       that.routes[nb.routeNo][nb.busStop.number].push(nb);
       that.stops[nb.busStop.number][nb.routeNo].push(nb);
     });
-
-    this.proximity.sort((function (l, r) {
-      return l.dist - r.dist;
-    }));
     this.rebuildProximityMap();
     return this;
   };
@@ -98,6 +131,9 @@ function NextBusSchedule() {
   this.rebuildProximityMap = function () {
     var that = this;
     this.proximityMap = {};
+    this.proximity.sort((function (l, r) {
+      return l.dist - r.dist;
+    }));
     this.proximity.forEach(function (value, idx) {
       that.proximityMap[value.bus.number] = idx;
     })

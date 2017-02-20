@@ -5,28 +5,37 @@ var BusStop = require('./model.js').BusStop;
 var Translink = require('./translink.js');
 
 /**
- * @param {{lat: number, lon: number}} oLatLon
- * @param {Function} onMenuLoad
- * @param {Function} fBackButtonLeavePressed
+ * @param {function(function(number,number))} fOLatLon
+ * @param {function} onMenuLoad
+ * @param {function} fBackButtonLeavePressed
  * @returns {{show: init, refresh: refresh}}
  */
-function buildLocationMenu(oLatLon, onMenuLoad, fBackButtonLeavePressed) {
+function buildLocationMenu(fOLatLon, onMenuLoad, fBackButtonLeavePressed) {
   var dictionary = new NextBusSchedule();
 
   function buildMenu() {
+    var diplayedBusesMap = {};
     var sectionDef = dictionary.proximity.map(function (oBusDef) {
       var busStopNo = oBusDef.bus.number;
       var routesInStop = dictionary.stops[busStopNo];
-      return {
-        title: busStopNo,
-        items: Object.keys(routesInStop).map(function (route) {
+      var items = Object.keys(routesInStop).map(function (route) {
+        if (diplayedBusesMap[route]) return null;
+        else {
+          diplayedBusesMap[route] = true;
           return {
             title: route,
             subtitle: "In " + routesInStop[route].join(", ")
           }
-        })
-      }
-    });
+        }
+      }).filter(function (obj) {return obj !== null;});
+      if (items.length > 0)
+        return {
+          title: busStopNo + " - " + oBusDef.bus.name,
+          items: items
+        };
+      else return null
+    }).filter(function (obj) {return obj !== null;});
+
     var menu = new UI.Menu({
       sections: sectionDef
     });
@@ -34,19 +43,24 @@ function buildLocationMenu(oLatLon, onMenuLoad, fBackButtonLeavePressed) {
     return menu;
   }
 
-  /**
-   * @param {BusStop} aBusStops
-   */
-  function onReceiveStops(aBusStops) {
-
-  }
-
-  function onFailStops() {
-
-  }
-
   function newView() {
-    Translink.getStops(oLatLon.lat, oLatLon.lon, 1000, onReceiveStops, onFailStops)
+    var splashScreen = buildSplashScreen('Getting location and stops near you!');
+    splashScreen.show();
+    fOLatLon(function (lat, lon) {
+      Translink.getStops(lat, lon, 1000, onReceiveStops, onFailStops)
+    });
+    /**
+     * @param {BusStop} aBusStops
+     */
+    function onReceiveStops(aBusStops) {
+      dictionary.appendStops(aBusStops);
+      buildMenu().show();
+      splashScreen.hide();
+    }
+
+    function onFailStops() {
+      splashScreen.hide();
+    }
   }
 
   function init() {
@@ -65,11 +79,11 @@ function buildLocationMenu(oLatLon, onMenuLoad, fBackButtonLeavePressed) {
 }
 
 /**
- * @param {BusStop} aBusStops
- * @param {{lat: number, lon: number}} oLatLon
+ * @param {Array.<BusStop>} aBusStops
+ * @param {{function(function(number,number))}} fReturnLatLon
  * @returns {{init, refresh}}
  */
-function buildMainMenu(aBusStops, oLatLon) {
+function buildMainMenu(aBusStops, fReturnLatLon) {
   return (function () {
     var currentView;
 
@@ -99,7 +113,7 @@ function buildMainMenu(aBusStops, oLatLon) {
     }
 
     function showLocationMenu() {
-      currentView = buildLocationMenu(oLatLon, onLocationMenuDisplay, onLeaveLocationMenu);
+      currentView = buildLocationMenu(fReturnLatLon, onLocationMenuDisplay, onLeaveLocationMenu);
       if (currentView) {
         currentView.show();
         return true;

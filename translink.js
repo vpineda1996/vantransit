@@ -36,8 +36,8 @@ var api = (function () {
  */
 function getStops(lat, long, radius, callbackSuccess, callbackFail) {
   var url = api.getWithApiKey(api.stops, [], {
-    lat: lat,
-    long: long,
+    lat: formatLocation(lat),
+    long: formatLocation(long),
     radius: radius
   });
 
@@ -45,6 +45,10 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
 
   function callback(xmlRes) {
     callbackSuccess(parseStopsXML(xmlRes))
+  }
+
+  function formatLocation(loc) {
+    return Math.floor(loc * 1000000) / 1000000
   }
 
   function callbackError(xmlRes) {
