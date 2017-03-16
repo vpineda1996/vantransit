@@ -58,10 +58,9 @@ function buildMainMenu(aBusStops, oLatLon) {
     }
 
     function refresh() {
-      if (stack) stack.refresh();
+      if (currentView) currentView.refresh();
     }
-
-
+    
     return {
       init: init,
       refresh: refresh
