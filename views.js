@@ -4,13 +4,71 @@ var NextBusSchedule = require('./model.js').NextBusSchedule;
 var BusStop = require('./model.js').BusStop;
 var Translink = require('./translink.js');
 
-function buildLocationMenu(oLatLon, onMenuLoad, fOnUpButtonLeavePressed) {
+/**
+ * @param {{lat: number, lon: number}} oLatLon
+ * @param {Function} onMenuLoad
+ * @param {Function} fBackButtonLeavePressed
+ * @returns {{show: init, refresh: refresh}}
+ */
+function buildLocationMenu(oLatLon, onMenuLoad, fBackButtonLeavePressed) {
+  var dictionary = new NextBusSchedule();
+
+  function buildMenu() {
+    var sectionDef = dictionary.proximity.map(function (oBusDef) {
+      var busStopNo = oBusDef.bus.number;
+      var routesInStop = dictionary.stops[busStopNo];
+      return {
+        title: busStopNo,
+        items: Object.keys(routesInStop).map(function (route) {
+          return {
+            title: route,
+            subtitle: "In " + routesInStop[route].join(", ")
+          }
+        })
+      }
+    });
+    var menu = new UI.Menu({
+      sections: sectionDef
+    });
+    menu.on('hide', fBackButtonLeavePressed);
+    return menu;
+  }
+
+  /**
+   * @param {BusStop} aBusStops
+   */
+  function onReceiveStops(aBusStops) {
+
+  }
+
+  function onFailStops() {
+
+  }
+
+  function newView() {
+    Translink.getStops(oLatLon.lat, oLatLon.lon, 1000, onReceiveStops, onFailStops)
+  }
+
+  function init() {
+    newView();
+    onMenuLoad();
+  }
+
+  function refresh() {
+    newView();
+  }
+
   return {
-    show: null,
-    refresh: null
+    show: init,
+    refresh: refresh
   }
 }
 
+/**
+ * @param {BusStop} aBusStops
+ * @param {{lat: number, lon: number}} oLatLon
+ * @returns {{init, refresh}}
+ */
 function buildMainMenu(aBusStops, oLatLon) {
   return (function () {
     var currentView;
@@ -19,11 +77,12 @@ function buildMainMenu(aBusStops, oLatLon) {
       showLocationMenu();
     }
 
-    function onBusStackOpen() {}
+    function onBusStackOpen() {
+    }
 
     function showBusStack() {
       currentView = buildSavedStopsStack(new NextBusSchedule(), aBusStops, onBusStackOpen, onLeaveBusStack);
-      if(currentView) {
+      if (currentView) {
         currentView.show();
         return true;
       } else {
@@ -50,7 +109,7 @@ function buildMainMenu(aBusStops, oLatLon) {
     }
 
     function init() {
-      if(!showBusStack()){
+      if (!showBusStack()) {
         var eWindow = buildErrorWindow('No saved bus stops!, press up to find one');
         eWindow.on('click', 'up', showLocationMenu);
         eWindow.show();
@@ -60,7 +119,7 @@ function buildMainMenu(aBusStops, oLatLon) {
     function refresh() {
       if (currentView) currentView.refresh();
     }
-    
+
     return {
       init: init,
       refresh: refresh
@@ -68,20 +127,12 @@ function buildMainMenu(aBusStops, oLatLon) {
   })();
 }
 
-function buildErrorWindow(error) {
-  return new UI.Card({
-    title: error,
-    titleColor: 'white',
-    backgroundColor: 'red' // Named colors
-  });
-}
-
 /**
- *
  * @param {NextBusSchedule} dictionary
  * @param {Array.<BusStop>} aBusStops
  * @param {Function} fOnFirstCardOn
  * @param {Function} fOnUpButtonLeavePressed
+ * @return {{show: init, refresh: refreshView}}
  */
 function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnUpButtonLeavePressed) {
   var aSortedBusStops = Array.from(aBusStops).sort(function (lBusStop, rBusStop) {
@@ -182,13 +233,6 @@ function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnUpButton
     };
 
   })();
-}
-
-function buildSplashScreen(title) {
-  return new UI.Card({
-    title: title,
-    subtitleColor: 'indigo' // Named colors
-  });
 }
 
 /**
@@ -299,9 +343,33 @@ function buildBusView(dictionary, busStop) {
   return wind;
 }
 
+/**
+ * @param title
+ * @returns Card
+ */
+function buildSplashScreen(title) {
+  return new UI.Card({
+    title: title,
+    subtitleColor: 'indigo' // Named colors
+  });
+}
+
+/**
+ * @param {string} error
+ * @returns Card
+ */
+function buildErrorWindow(error) {
+  return new UI.Card({
+    title: error,
+    titleColor: 'white',
+    backgroundColor: 'red' // Named colors
+  });
+}
+
 module.exports = {
   buildMainMenu: buildMainMenu,
   buildBusView: buildBusView,
   buildSplashScreen: buildSplashScreen,
-  buildSavedStopsStack: buildSavedStopsStack
+  buildSavedStopsStack: buildSavedStopsStack,
+  buildLocationMenu: buildLocationMenu
 }
