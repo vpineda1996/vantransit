@@ -41,6 +41,7 @@ function parseStopsXML(xmlRes) {
     
     for(var i = 0; i < stopsXML.length; i++) {
         var element = stopsXML.item(i);
+        console.log(element);
         stops.push(new BusStop(
             element.getElementsByTagName('Number').item(0).textContent,
             element.getElementsByTagName('Name').item(0).textContent,
