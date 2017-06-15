@@ -41,13 +41,13 @@ function parseStopsXML(xmlRes) {
     
     for(var i = 0; i < stopsXML.length; i++) {
         var element = stopsXML.item(i);
-        console.log(element);
+        console.log(element.textContent);
         stops.push(new BusStop(
-            element.getElementsByTagName('Number').item(0).textContent,
-            element.getElementsByTagName('Name').item(0).textContent,
-            element.getElementsByTagName('Latitude').item(0).textContent,
-            element.getElementsByTagName('Longitude').item(0).textContent,
-            element.getElementsByTagName('Routes').item(0).textContent
+            element.getElementsByTagName('number').item(0).textContent,
+            element.getElementsByTagName('name').item(0).textContent,
+            element.getElementsByTagName('latitude').item(0).textContent,
+            element.getElementsByTagName('longitude').item(0).textContent,
+            element.getElementsByTagName('routes').item(0).textContent
         ));
     }
     console.log(stops)
