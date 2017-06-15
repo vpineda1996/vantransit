@@ -36,16 +36,19 @@ function getStops(lat, long, radius) {
 
 function parseStopsXML(xmlRes) {
     var xmlDoc = xmlRes.responseXML;
-    var stops = []
-    xmlDoc.getElementsByTagName('Stop').forEach(function(element) {
+    var stopsXML = xmlDoc.getElementsByTagName('Stop');
+    var stops = [];
+    
+    for(var i = 0; i < stopsXML.length; i++) {
+        var element = stopsXML.item(i);
         stops.push(new BusStop(
-            element.getElementsByTagName('Number').textContent,
-            element.getElementsByTagName('Name').textContent,
-            element.getElementsByTagName('Latitude').textContent,
-            element.getElementsByTagName('Longitude').textContent,
-            element.getElementsByTagName('Routes').textContent
+            element.getElementsByTagName('Number').item(0).textContent,
+            element.getElementsByTagName('Name').item(0).textContent,
+            element.getElementsByTagName('Latitude').item(0).textContent,
+            element.getElementsByTagName('Longitude').item(0).textContent,
+            element.getElementsByTagName('Routes').item(0).textContent
         ));
-    });
+    }
     console.log(stops)
     return stops;
 }
