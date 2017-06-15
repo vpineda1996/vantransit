@@ -14,6 +14,14 @@ var api = (function(){
     }
 })()
 
+function BusStop(number, name, lat, long, routes){
+    this.number = number;
+    this.name = name;
+    this.lat = lat;
+    this.long = long;
+    this.routes = routes;
+}
+
 
 function getStops(lat, long, radius) {
     var url = api.getWithApiKey(api.stops, [], {
@@ -28,14 +36,18 @@ function getStops(lat, long, radius) {
 
 function parseStopsXML(xmlRes) {
     var xmlDoc = xmlRes.responseXML;
-    console.log(xmlRes.responseText);
-    console.log(xmlDoc);
-    console.log(xmlDoc.childNodes);
-    if(xmlDoc.childNodes) {
-        xmlDoc.childNodes.forEach(function(element) {
-            console.log(element.nodeName + ": " + element.textContent)
-        });
-    }
+    var stops = []
+    xmlDoc.getElementsByTagName('Stop').forEach(function(element) {
+        stops.push(new BusStop(
+            element.getElementsByTagName('Number').textContent,
+            element.getElementsByTagName('Name').textContent,
+            element.getElementsByTagName('Latitude').textContent,
+            element.getElementsByTagName('Longitude').textContent,
+            element.getElementsByTagName('Routes').textContent
+        ));
+    });
+    console.log(stops)
+    return stops;
 }
 
 function request(url, callbackSuccess, callbackFail) {
