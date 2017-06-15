@@ -21,6 +21,7 @@ function getStops(lat, long, radius) {
         long: long,
         radius: radius
     });
+    console.log(url)
     request(url, parseStopsXML, parseStopsXML)
 }
 
