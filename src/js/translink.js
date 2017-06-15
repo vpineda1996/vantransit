@@ -21,21 +21,29 @@ function getStops(lat, long, radius) {
         long: long,
         radius: radius
     });
-    console.log(url)
-    request(url, parseStopsXML, parseStopsXML)
+    request(url, parseStopsXML, function(){
+        console.log("ERROR!!!")
+    })
 }
 
 function parseStopsXML(xmlRes) {
     var xmlDoc = xmlRes.responseXML;
     console.log(xmlRes.responseText);
     console.log(xmlDoc);
+    console.log(xmlDoc.childNodes);
+    if(xmlDoc.childNodes) {
+        xmlDoc.childNodes.forEach(function(element) {
+            console.log(element.nodeName + ": " + element.textContent)
+        });
+    }
 }
 
 function request(url, callbackSuccess, callbackFail) {
     var request = new XMLHttpRequest();
-    request.onreadystatechange = function() {
-        if(this.status == 200) callbackSuccess(this)
-        else callbackFail(this)
+    request.onload = function() {
+        if (request.readyState === xhr.DONE && request.status === 200) {
+            callbackSuccess(this)
+        } else callbackFail(this)
     };
     request.open(method, url);
     request.send();
