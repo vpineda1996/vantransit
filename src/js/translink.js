@@ -43,7 +43,7 @@ function parseStopsXML(xmlRes) {
         var element = stopsXML.item(i);
         console.log(element.textContent);
         stops.push(new BusStop(
-            element.getElementsByTagName('number').item(0).textContent,
+            element.getElementsByTagName('stopno').item(0).textContent,
             element.getElementsByTagName('name').item(0).textContent,
             element.getElementsByTagName('latitude').item(0).textContent,
             element.getElementsByTagName('longitude').item(0).textContent,
