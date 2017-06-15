@@ -43,15 +43,21 @@ function parseStopsXML(xmlRes) {
         var element = stopsXML.item(i);
         console.log(element.textContent);
         stops.push(new BusStop(
-            element.getElementsByTagName('StopNo').item(0).textContent,
-            element.getElementsByTagName('Name').item(0).textContent,
-            element.getElementsByTagName('Latitude').item(0).textContent,
-            element.getElementsByTagName('Longitude').item(0).textContent,
-            element.getElementsByTagName('Routes').item(0).textContent
+            elementVal('StopNo'),
+            elementVal('Name'),
+            elementVal('Latitude'),
+            elementVal('Longitude'),
+            elementVal('Routes') 
         ));
     }
     console.log(stops)
     return stops;
+
+    function elementVal(str) {
+        if(element.getElementsByTagName(str)) return element.getElementsByTagName(str).item(0).textContent
+        console.log('error!!!')
+        return "";
+    }
 }
 
 function request(url, callbackSuccess, callbackFail) {
