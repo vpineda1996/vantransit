@@ -41,7 +41,7 @@ function parseStopsXML(xmlRes) {
 function request(url, callbackSuccess, callbackFail) {
     var request = new XMLHttpRequest();
     request.onload = function() {
-        if (request.readyState === xhr.DONE && request.status === 200) {
+        if (request.readyState === request.DONE && request.status === 200) {
             callbackSuccess(this)
         } else callbackFail(this)
     };
