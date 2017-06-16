@@ -4,7 +4,8 @@ var api = (function () {
     var apiKey = '0GKoVlC6TgpNJJNRjZ1r'
     function getWithApiKey(entry, routes, fields) {
         fields["apiKey"] = apiKey
-        var routesStr = routes.unshift("rttiapi", "v1", entry).map(v => "/" + v).join("")
+        routes.unshift("rttiapi", "v1", entry)
+        var routesStr = routes.map(v => "/" + v).join("")
         return url + routesStr + "?" + Object.keys(fields).map(function (arg) { return arg + "=" + fields[arg] }).join("&")
     }
     return {
