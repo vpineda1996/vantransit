@@ -11,7 +11,7 @@ var Translink = require('./translink.js')
 var BusStop = Translink.BusStop;
 var Departure = Translink.Departure;
 
-var Views = require('./view.js');
+var Views = require('./views.js');
 
 var main = new UI.Card({
   title: 'Pebble.js',
