@@ -22,10 +22,10 @@ function BusStop(number, name, route) {
   this.route = route;
 }
 
-function Departure(routeNo, destination, nextBuseIn) {
+function Departure(routeNo, destination, nextBusIn) {
   this.routeNo = routeNo;
   this.destination = destination;
-  this.nextBussIn = nextBuseIn;
+  this.nextBusIn = nextBusIn;
 }
 
 function getStops(lat, long, radius, callbackSuccess, callbackFail) {

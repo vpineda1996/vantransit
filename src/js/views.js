@@ -6,7 +6,7 @@ function buildNextBusMenu(aNextBus) {
   var items = aNextBus.map(nb => {
     return { 
       title: nb.destination,
-      subtitle: nb.nextBuseIn
+      subtitle: nb.nextBusIn
     }
   })
   return new UI.Menu({
