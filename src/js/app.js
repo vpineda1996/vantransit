@@ -44,8 +44,9 @@ function stringifyAndLog(value) {
     card.show();
   }
   var activateWindow = function (aNextBuses) {
-    Views.buildMainMenu(new NextBusSchedule().append(aNextBuses));
-      showNextCard(aNextBuses, 0)
+    var menu = Views.buildMainMenu(new NextBusSchedule().append(aNextBuses));
+    menu.show();
+    //showNextCard(aNextBuses, 0)
   }
   main.on('click', 'up', function (e) {
     Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);

@@ -39,7 +39,7 @@ function NextBusSchedule() {
         this.proximity.sort((function(l, r) {
             return l.dist < r.dist;
         }));
-        
+
         return this;
     }
 }
