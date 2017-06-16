@@ -44,6 +44,7 @@ function stringifyAndLog(value) {
       showNextCard(aNextBuses, nextViewIdx)
       nextViewIdx++
     } else {
+      nextViewIdx = 0;
       Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
     }
   }
