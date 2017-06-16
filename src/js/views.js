@@ -1,4 +1,6 @@
 
+var UI = require('ui');
+var Vector2 = require('vector2');
 
 function buildNextBusMenu(aNextBus) {
   var items = aNextBus.map(nb => {
