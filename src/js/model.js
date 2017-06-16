@@ -23,22 +23,19 @@ function NextBusSchedule() {
     /** @type {Object.<string, Array<String>>} */
     this.nextIn = {}
 
-    this.append = function () {
+    this.append = function (aNextBus) {
         var that = this;
-        arguments.forEach(function(aNextBus) {
-            aNextBus.forEach(function(nb) {
-                if (that.nextIn[nb.nextIn] === undefined) {
-                    that.routes.push(nb);
-                    that.nextIn[nb.routeNo] = [];
-                    that.proximity.push({
-                        bus: nb.busStop,
-                        dist: nb.busStop.distance
-                    });
-                }
-                that.nextIn[nb.routeNo].push(nb.nextBusIn)
-            });
+        aNextBus.forEach(function(nb) {
+            if (that.nextIn[nb.nextIn] === undefined) {
+                that.routes.push(nb);
+                that.nextIn[nb.routeNo] = [];
+                that.proximity.push({
+                    bus: nb.busStop,
+                    dist: nb.busStop.distance
+                });
+            }
+            that.nextIn[nb.routeNo].push(nb.nextBusIn)
         });
-
         this.proximity.sort((function(l, r) {
             return l.dist < r.dist;
         }))
