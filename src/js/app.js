@@ -30,25 +30,23 @@ function stringifyAndLog(value) {
 
 // Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
 (function(){
-  var nextViewIdx = Infinity
   var showNextCard = function(aNextBuses, idx) {
     var nb = aNextBuses[idx];
     var card = new UI.Card();
     card.title(nb.destination);
     card.subtitle(nb.nextBusIn);
     card.body('The simplest window type in Pebble.js.');
+    card.on('click', 'up', function (e) {
+      if(idx++ < aNextBuses.length) showNextCard(aNextBuses, idx)
+    });
     card.show();
   }
   var activateWindow = function (aNextBuses) {
-    if (aNextBuses.length > nextViewIdx) {
-      showNextCard(aNextBuses, nextViewIdx)
-      nextViewIdx++
-    } else {
-      nextViewIdx = 0;
-      Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
-    }
+      showNextCard(aNextBuses, 0)
   }
-  main.on('click', 'up', function(){ activateWindow([]) });
+  main.on('click', 'up', function (e) {
+    Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
+  });
 })()
 
 main.on('click', 'select', function (e) {
