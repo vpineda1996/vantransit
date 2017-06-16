@@ -6,9 +6,12 @@
 
 var UI = require('ui');
 var Vector2 = require('vector2');
+
 var Translink = require('./translink.js')
 var BusStop = Translink.BusStop;
 var Departure = Translink.Departure;
+
+var Views = require('./view.js');
 
 var main = new UI.Card({
   title: 'Pebble.js',
@@ -26,30 +29,19 @@ function stringifyAndLog(value) {
 }
 
 Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
-Translink.getNextBus(new BusStop('60980','Any', '007'), stringifyAndLog, stringifyAndLog);
 
 main.on('click', 'up', function(e) {
-  var menu = new UI.Menu({
-    sections: [{
-      items: [{
-        title: 'Pebble.js',
-        icon: 'images/menu_icon.png',
-        subtitle: 'Can do Menus'
-      }, {
-        title: 'Second Item',
-        subtitle: 'Subtitle Text'
-      }, {
-        title: 'Third Item',
-      }, {
-        title: 'Fourth Item',
-      }]
-    }]
-  });
-  menu.on('select', function(e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
-  });
-  menu.show();
+  
+  var activateWindow = function(aNextBuses) {
+    var menu = Views.buildNextBusMenu(aNextBuses);
+    menu.on('select', function(e) {
+      console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+      console.log('The item is titled "' + e.item.title + '"');
+    });
+    menu.show();
+  }
+
+  Translink.getNextBus(new BusStop('60980','Any', '007'), activateWindow, stringifyAndLog);
 });
 
 main.on('click', 'select', function(e) {
