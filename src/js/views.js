@@ -14,25 +14,22 @@ function buildNextBusScheduleCard(nextBusSchedule) {
  * @param {NextBusSchedule} nextBusSchedule
  */
 function buildMainMenu(nextBusSchedule) {
+    
     var sections = nextBusSchedule.routes.map(function (route) {
         return {
-            title: route.routeNo,
+            title: route.busStop.number + " " + route.busStop.name,
             items: nextBusSchedule.nextIn[route.routeNo].map(function (time) {
                 return {
-                    title: 'Leaves in',
-                    subtitle: time
+                    title: route.routeNo + " " + route.destination,
+                    subtitle: 'Leaves in ' + time
                 }
             })
         }
     });
-    console.log(JSON.stringify(sections));
-    console.log(JSON.stringify(nextBusSchedule))
 
     return new UI.Menu({
         sections: sections
     });
-
-
 }
 
 module.exports = {
