@@ -33,7 +33,17 @@ Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog
 main.on('click', 'up', function(e) {
   
   var activateWindow = function(aNextBuses) {
-    var menu = Views.buildNextBusMenu(aNextBuses);
+    var items = aNextBus.map(nb => {
+      return { 
+        title: nb.destination,
+        subtitle: nb.nextBusIn
+      }
+    })
+    var menu = new UI.Menu({
+      sections: [{
+        items: items
+      }]
+    });
     menu.on('select', function(e) {
       console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
       console.log('The item is titled "' + e.item.title + '"');
