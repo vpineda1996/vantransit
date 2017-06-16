@@ -56,7 +56,7 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
         }
         return stops;
 
-        function elementVal(str) {
+        function elementVal(element, str) {
             var children = element.getElementsByTagName(str)
             if (children.length) return children.item(0).textContent
             console.log('Error processing:' + element.textContent)
@@ -79,14 +79,13 @@ function getNextBus(busStop, callbackSuccess, callbackFail) {
 
     function parseStopsXML(xmlRes) {
         var xmlDoc = xmlRes.responseXML;
-        console.log(xmlRes.responseText)
         var stopsXML = xmlDoc.getElementsByTagName('NextBus');
         var stops = [];
-
         for (var i = 0; i < stopsXML.length; i++) {
             var element = stopsXML.item(i);
             var routeNumber = elementVal(element, 'RouteNo');
             var routeXML = element.getElementsByTagName('Schedule');
+            console.log('Got ' + routeXML.length + ' buses!');
             for (var j = 0; j < routeXML.length; j++) {
                 var scheduleElement = routeXML.item(j);
                 stops.push(new Departure(
@@ -98,10 +97,10 @@ function getNextBus(busStop, callbackSuccess, callbackFail) {
         }
         return stops;
 
-        function elementVal(str) {
-            var children = element.getElementsByTagName(str)
+        function elementVal(scheduleElement, str) {
+            var children = scheduleElement.getElementsByTagName(str)
             if (children.length) return children.item(0).textContent
-            console.log('Error processing:' + element.textContent)
+            console.log('Error processing:' + scheduleElement.textContent)
             return "";
         }
     }
