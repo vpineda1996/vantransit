@@ -38,7 +38,7 @@ main.on('click', 'up', function (e) {
     card.subtitle(nb.nextBusIn);
     card.body('The simplest window type in Pebble.js.');
 
-    card.on('up', 'select', function (e) {
+    card.on('click', 'up', function (e) {
       if(idx++ < aNextBuses.length) showNextCard(aNextBuses, idx++);
     });
     card.show();
