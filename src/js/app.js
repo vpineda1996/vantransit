@@ -32,6 +32,7 @@ function stringifyAndLog(value) {
 
 // Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
 (function(){
+  var menu;
   var showNextCard = function(aNextBuses, idx) {
     var nb = aNextBuses[idx];
     var card = new UI.Card();
@@ -44,7 +45,7 @@ function stringifyAndLog(value) {
     card.show();
   }
   var activateWindow = function (aNextBuses) {
-    var menu = Views.buildMainMenu(new NextBusSchedule().append(aNextBuses));
+    if(!menu) menu = Views.buildMainMenu(new NextBusSchedule().append(aNextBuses));
     menu.show();
     //showNextCard(aNextBuses, 0)
   }
