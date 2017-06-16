@@ -40,7 +40,7 @@ function stringifyAndLog(value) {
     card.show();
   }
   var activateWindow = function (aNextBuses) {
-    if (aNextBuses.length < nextViewIdx) {
+    if (aNextBuses.length > nextViewIdx) {
       showNextCard(aNextBuses, nextViewIdx)
       nextViewIdx++
     } else {
