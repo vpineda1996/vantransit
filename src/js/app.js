@@ -28,28 +28,23 @@ function stringifyAndLog(value) {
   console.log(JSON.stringify(value));
 }
 
-Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
+// Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
 
 main.on('click', 'up', function (e) {
-  var menu = new UI.Menu();
+  var showNextCard = function(aNextBuses, idx) {
+    var nb = aNextBuses[idx];
+    var card = new UI.Card();
+    card.title(nb.destination);
+    card.subtitle(nb.nextBusIn);
+    card.body('The simplest window type in Pebble.js.');
 
-  menu.on('select', function (e) {
-    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-    console.log('The item is titled "' + e.item.title + '"');
-  });
-  menu.show();
-
-  var activateWindow = function (aNextBuses) {
-    var items = aNextBuses.map(nb => {
-      return {
-        title: nb.destination,
-        subtitle: nb.nextBusIn
-      }
+    card.on('up', 'select', function (e) {
+      if(idx++ < aNextBuses.length) showNextCard(aNextBuses, idx++);
     });
-    menu.sections = [{
-      items: items
-    }];
-    menu.show();
+    card.show();
+  }
+  var activateWindow = function (aNextBuses) {
+    showNextCard(aNextBuses, 0)
   }
 
   Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
