@@ -47,7 +47,7 @@ function stringifyAndLog(value) {
       Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
     }
   }
-  main.on('click', 'up', function(){ activateWindow() });
+  main.on('click', 'up', function(){ activateWindow([]) });
 })()
 
 main.on('click', 'select', function (e) {
