@@ -8,8 +8,10 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 
 var Translink = require('./translink.js')
-var BusStop = Translink.BusStop;
-var Departure = Translink.Departure;
+var Model = require('./model.js')
+var BusStop = Model.BusStop;
+var Departure = Model.Departure;
+var NextBusSchedule = Model.NextBusSchedule;
 
 var Views = require('./views.js');
 
@@ -42,6 +44,7 @@ function stringifyAndLog(value) {
     card.show();
   }
   var activateWindow = function (aNextBuses) {
+    Views.buildMainMenu(new NextBusSchedule().append(aNextBuses));
       showNextCard(aNextBuses, 0)
   }
   main.on('click', 'up', function (e) {

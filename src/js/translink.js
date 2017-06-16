@@ -1,3 +1,7 @@
+var Model = require('./model.js');
+var Departure = Model.Departure;
+var BusStop = Model.BusStop;
+
 var method = 'GET';
 var api = (function () {
   var url = "http://api.translink.ca"
@@ -5,7 +9,7 @@ var api = (function () {
   function getWithApiKey(entry, routes, fields) {
     fields["apiKey"] = apiKey
     routes.unshift("rttiapi", "v1", entry)
-    var routesStr = routes.map(v => "/" + v).join("")
+    var routesStr = routes.map(function(v){ return "/" + v}).join("");
     return url + routesStr + "?" + Object.keys(fields).map(function (arg) { return arg + "=" + fields[arg] }).join("&")
   }
   return {
@@ -16,17 +20,7 @@ var api = (function () {
   }
 })()
 
-function BusStop(number, name, route) {
-  this.number = number;
-  this.name = name;
-  this.route = route;
-}
 
-function Departure(routeNo, destination, nextBusIn) {
-  this.routeNo = routeNo;
-  this.destination = destination;
-  this.nextBusIn = nextBusIn;
-}
 
 function getStops(lat, long, radius, callbackSuccess, callbackFail) {
   var url = api.getWithApiKey(api.stops, [], {
@@ -48,10 +42,12 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
     console.log('Got ' + stopsXML.length + ' stops!');
     for (var i = 0; i < stopsXML.length; i++) {
       var element = stopsXML.item(i);
-      elementVal(element, 'Routes').split(", ").forEach(function (element) {
+      elementVal(element, 'Routes').split(", ").forEach(function (route) {
         stops.push(new BusStop(
           elementVal(element, 'StopNo'),
           elementVal(element, 'Name'),
+          route,
+          elementVal(element, 'Distance')
         ));
       });
     }
@@ -94,7 +90,8 @@ function getNextBus(busStop, callbackSuccess, callbackFail) {
         stops.push(new Departure(
           routeNumber,
           elementVal(scheduleElement, 'Destination'),
-          elementVal(scheduleElement, 'ExpectedCountdown')
+          elementVal(scheduleElement, 'ExpectedCountdown'),
+          busStop
         ));
       }
     }
@@ -122,7 +119,5 @@ function request(url, callbackSuccess, callbackFail) {
 
 module.exports = {
   getStops: getStops,
-  getNextBus: getNextBus,
-  BusStop: BusStop,
-  Departure: Departure
+  getNextBus: getNextBus
 }
