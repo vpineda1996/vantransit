@@ -25,12 +25,10 @@ function buildMainMenu(nextBusSchedule) {
             })
         }
     });
+    console.log(JSON.stringify(sections));
+    console.log(JSON.stringify(nextBusSchedule))
 
     return new UI.Menu({
-        backgroundColor: 'black',
-        textColor: 'blue',
-        highlightBackgroundColor: 'blue',
-        highlightTextColor: 'black',
         sections: sections
     });
 
