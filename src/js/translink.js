@@ -57,10 +57,12 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
     }
     return stops;
 
-    function elementVal(element, str) {
-      var children = element.getElementsByTagName(str)
-      if (children.length) return children.item(0).textContent
-      console.log('Error processing:' + element.textContent)
+    function elementVal(elementToSearch, str) {
+      if(element) {
+        var children = elementToSearch.getElementsByTagName(str)
+        if (children.length) return children.item(0).textContent
+      }
+      console.log('Error processing:' + elementToSearch.textContent)
       return "";
     }
   }

@@ -9,7 +9,7 @@ function buildNextBusMenu(aNextBus) {
       subtitle: nb.nextBuseIn
     }
   })
-  var menu = new UI.Menu({
+  return new UI.Menu({
     sections: [{
       items: items
     }]
