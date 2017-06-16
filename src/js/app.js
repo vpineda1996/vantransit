@@ -7,11 +7,13 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
 var Translink = require('./translink.js')
+var BusStop = Translink.BusStop;
+var Departure = Translink.Departure;
 
 var main = new UI.Card({
   title: 'Pebble.js',
   icon: 'images/menu_icon.png',
-  subtitle: Translink.echo,
+  subtitle: 'Hi',
   body: 'Press any button.',
   subtitleColor: 'indigo', // Named colors
   bodyColor: '#9a0036' // Hex colors
@@ -19,7 +21,12 @@ var main = new UI.Card({
 
 main.show();
 
-Translink.getStops(49.248523, -123.108800, 500)
+function stringifyAndLog(value) {
+  console.log(JSON.stringify(value));
+}
+
+Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
+Translink.getNextBus(new BusStop('60980','Any', '007'), stringifyAndLog, stringifyAndLog);
 
 main.on('click', 'up', function(e) {
   var menu = new UI.Menu({

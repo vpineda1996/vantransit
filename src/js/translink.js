@@ -1,68 +1,113 @@
 var method = 'GET';
-var api = (function(){
-    var url = "http://api.translink.ca/rttiapi/v1"
+var api = (function () {
+    var url = "http://api.translink.ca"
     var apiKey = '0GKoVlC6TgpNJJNRjZ1r'
-    function getWithApiKey(url, routes, fields) {
+    function getWithApiKey(entry, routes, fields) {
         fields["apiKey"] = apiKey
-        return url + routes.join("") + "?" + Object.keys(fields).map(function(arg){ return arg + "=" + fields[arg]}).join("&")
+        var routesStr = routes.unshift("rttiapi", "v1", entry).map(v => "/" + v).join("")
+        return url + routesStr + "?" + Object.keys(fields).map(function (arg) { return arg + "=" + fields[arg] }).join("&")
     }
     return {
-        stops: url + "/stops",
-        buses: url + "/buses",
-        route: url + "/routes",
+        stops: "stops",
+        buses: "buses",
+        route: "routes",
         getWithApiKey: getWithApiKey
     }
 })()
 
-function BusStop(number, name, lat, long, routes){
+function BusStop(number, name, route) {
     this.number = number;
     this.name = name;
-    this.lat = lat;
-    this.long = long;
-    this.routes = routes;
+    this.route = route;
 }
 
+function Departure(routeNo, destination, nextBusesIn) {
+    this.routeNo = routeNo;
+    this.destination = destination;
+    this.nextBusesIn = nextBusesIn;
+}
 
-function getStops(lat, long, radius) {
+function getStops(lat, long, radius, callbackSuccess, callbackFail) {
     var url = api.getWithApiKey(api.stops, [], {
         lat: lat,
         long: long,
         radius: radius
     });
-    request(url, parseStopsXML, function(){
-        console.log("ERROR!!!")
-    })
+
+    request(url, callback, callbackFail)
+
+    function callback(xmlRes) {
+        callbackSuccess(parseStopsXML(xmlRes))
+    }
+
+    function parseStopsXML(xmlRes) {
+        var xmlDoc = xmlRes.responseXML;
+        var stopsXML = xmlDoc.getElementsByTagName('Stop');
+        var stops = [];
+
+        for (var i = 0; i < stopsXML.length; i++) {
+            var element = stopsXML.item(i);
+            stops.push(new BusStop(
+                elementVal(element, 'StopNo'),
+                elementVal(element, 'Name'),
+                elementVal(element, 'Routes')
+            ));
+        }
+        return stops;
+
+        function elementVal(str) {
+            var children = element.getElementsByTagName(str)
+            if (children.length) return children.item(0).textContent
+            console.log('Error processing:' + element.textContent)
+            return "";
+        }
+    }
 }
 
-function parseStopsXML(xmlRes) {
-    var xmlDoc = xmlRes.responseXML;
-    var stopsXML = xmlDoc.getElementsByTagName('Stop');
-    var stops = [];
-    
-    for(var i = 0; i < stopsXML.length; i++) {
-        var element = stopsXML.item(i);
-        console.log(element.textContent);
-        stops.push(new BusStop(
-            elementVal('StopNo'),
-            elementVal('Name'),
-            elementVal('Latitude'),
-            elementVal('Longitude'),
-            elementVal('Routes') 
-        ));
-    }
-    console.log(stops)
-    return stops;
+function getNextBus(busStop, callbackSuccess, callbackFail) {
+    var url = api.getWithApiKey(api.stops, [ busStop.number, "estimates" ], {
+        count: 3,
+        routeNo: busStop.route
+    });
 
-    function elementVal(str) {
-        if(element.getElementsByTagName(str)) return element.getElementsByTagName(str).item(0).textContent
-        console.log('error!!!')
-        return "";
+    request(url, callback, callbackFail)
+
+    function callback(xmlRes) {
+        callbackSuccess(parseStopsXML(xmlRes))
+    }
+
+    function parseStopsXML(xmlRes) {
+        var xmlDoc = xmlRes.responseXML;
+        var stopsXML = xmlDoc.getElementsByTagName('NextBus');
+        var stops = [];
+
+        for (var i = 0; i < stopsXML.length; i++) {
+            var element = stopsXML.item(i);
+            var routeNumber = elementVal(element, 'RouteNo');
+            var routeXML = element.getElementsByTagName('Schedule');
+            for (var j = 0; j < routeXML.length; j++) {
+                var scheduleElement = routeXML.item(j);
+                stops.push(new Departure(
+                    routeNumber,
+                    elementVal(scheduleElement, 'Destination'),
+                    elementVal(scheduleElement, 'ExpectedCountdown')
+                ));
+            }
+        }
+        return stops;
+
+        function elementVal(str) {
+            var children = element.getElementsByTagName(str)
+            if (children.length) return children.item(0).textContent
+            console.log('Error processing:' + element.textContent)
+            return "";
+        }
     }
 }
 
 function request(url, callbackSuccess, callbackFail) {
     var request = new XMLHttpRequest();
-    request.onload = function() {
+    request.onload = function () {
         if (request.readyState === request.DONE && request.status === 200) {
             callbackSuccess(this)
         } else callbackFail(this)
@@ -72,6 +117,8 @@ function request(url, callbackSuccess, callbackFail) {
 }
 
 module.exports = {
-    echo: 'echo',
-    getStops: getStops
+    getStops: getStops,
+    getNextBus: getNextBus,
+    BusStop: BusStop,
+    Departure: Departure
 }
