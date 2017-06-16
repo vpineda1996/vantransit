@@ -17,7 +17,7 @@ function buildMainMenu(nextBusSchedule) {
     var sections = nextBusSchedule.routes.map(function (route) {
         return {
             title: route.routeNo,
-            items: nextBusSchedule.nextIn[route.routeNo].forEach(function (time) {
+            items: nextBusSchedule.nextIn[route.routeNo].map(function (time) {
                 return {
                     title: 'Leaves in',
                     subtitle: time
