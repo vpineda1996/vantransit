@@ -26,7 +26,7 @@ function NextBusSchedule() {
     this.append = function (aNextBus) {
         var that = this;
         aNextBus.forEach(function(nb) {
-            if (that.nextIn[nb.nextIn] === undefined) {
+            if (that.nextIn[nb.routeNo] === undefined) {
                 that.routes.push(nb);
                 that.nextIn[nb.routeNo] = [];
                 that.proximity.push({
