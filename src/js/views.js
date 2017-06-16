@@ -1,6 +1,6 @@
 var UI = require('ui');
 var Vector2 = require('vector2');
-var NextBusSchedule = requre('./model.js').NextBusSchedule;
+var NextBusSchedule = require('./model.js').NextBusSchedule;
 
 /**
  *
