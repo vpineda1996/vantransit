@@ -45,7 +45,7 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
         var xmlDoc = xmlRes.responseXML;
         var stopsXML = xmlDoc.getElementsByTagName('Stop');
         var stops = [];
-
+        console.log('Got ' + stopsXML.length + ' stops!');
         for (var i = 0; i < stopsXML.length; i++) {
             var element = stopsXML.item(i);
             stops.push(new BusStop(
@@ -79,6 +79,7 @@ function getNextBus(busStop, callbackSuccess, callbackFail) {
 
     function parseStopsXML(xmlRes) {
         var xmlDoc = xmlRes.responseXML;
+        console.log(xmlRes.responseText)
         var stopsXML = xmlDoc.getElementsByTagName('NextBus');
         var stops = [];
 
