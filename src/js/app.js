@@ -30,31 +30,32 @@ function stringifyAndLog(value) {
 
 Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog);
 
-main.on('click', 'up', function(e) {
-  
-  var activateWindow = function(aNextBuses) {
+main.on('click', 'up', function (e) {
+  var menu = new UI.Menu();
+
+  menu.on('select', function (e) {
+    console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
+    console.log('The item is titled "' + e.item.title + '"');
+  });
+  menu.show();
+
+  var activateWindow = function (aNextBuses) {
     var items = aNextBuses.map(nb => {
-      return { 
+      return {
         title: nb.destination,
         subtitle: nb.nextBusIn
       }
-    })
-    var menu = new UI.Menu({
-      sections: [{
-        items: items
-      }]
     });
-    menu.on('select', function(e) {
-      console.log('Selected item #' + e.itemIndex + ' of section #' + e.sectionIndex);
-      console.log('The item is titled "' + e.item.title + '"');
-    });
+    menu.sections = [{
+      items: items
+    }];
     menu.show();
   }
 
-  Translink.getNextBus(new BusStop('60980','Any', '007'), activateWindow, stringifyAndLog);
+  Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
 });
 
-main.on('click', 'select', function(e) {
+main.on('click', 'select', function (e) {
   var wind = new UI.Window({
     backgroundColor: 'black'
   });
@@ -76,22 +77,22 @@ main.on('click', 'select', function(e) {
   var windSize = wind.size();
   // Center the radial in the window
   var radialPos = radial.position()
-      .addSelf(windSize)
-      .subSelf(radial.size())
-      .multiplyScalar(0.5);
+    .addSelf(windSize)
+    .subSelf(radial.size())
+    .multiplyScalar(0.5);
   radial.position(radialPos);
   // Center the textfield in the window
   var textfieldPos = textfield.position()
-      .addSelf(windSize)
-      .subSelf(textfield.size())
-      .multiplyScalar(0.5);
+    .addSelf(windSize)
+    .subSelf(textfield.size())
+    .multiplyScalar(0.5);
   textfield.position(textfieldPos);
   wind.add(radial);
   wind.add(textfield);
   wind.show();
 });
 
-main.on('click', 'down', function(e) {
+main.on('click', 'down', function (e) {
   var card = new UI.Card();
   card.title('A Card');
   card.subtitle('Is a Window');
