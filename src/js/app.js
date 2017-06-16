@@ -33,7 +33,7 @@ Translink.getStops(49.248523, -123.108800, 500, stringifyAndLog, stringifyAndLog
 main.on('click', 'up', function(e) {
   
   var activateWindow = function(aNextBuses) {
-    var items = aNextBus.map(nb => {
+    var items = aNextBuses.map(nb => {
       return { 
         title: nb.destination,
         subtitle: nb.nextBusIn

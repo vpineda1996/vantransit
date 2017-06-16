@@ -58,7 +58,7 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
     return stops;
 
     function elementVal(elementToSearch, str) {
-      if(element) {
+      if(elementToSearch) {
         var children = elementToSearch.getElementsByTagName(str)
         if (children.length) return children.item(0).textContent
       }
