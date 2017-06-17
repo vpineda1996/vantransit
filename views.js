@@ -28,6 +28,8 @@ function buildMainMenu(nextBusSchedule) {
     });
 
     return new UI.Menu({
+        highlightBackgroundColor: '#00AAFF',
+        highlightTextColor: 'black',
         sections: sections
     });
 }

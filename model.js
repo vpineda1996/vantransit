@@ -1,6 +1,3 @@
-/**
- * Created by vpineda on 2017-06-16.
- */
 function BusStop(number, name, route, distance) {
     /** @type {string} */
     this.number = number;
@@ -54,7 +51,7 @@ function NextBusSchedule() {
             that.nextIn[nb.routeNo].push(nb.nextBusIn)
         });
         this.proximity.sort((function(l, r) {
-            return l.dist < r.dist;
+            return l.dist - r.dist;
         }));
 
         return this;
