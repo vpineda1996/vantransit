@@ -59,7 +59,7 @@ function stringifyAndLog(value) {
     menu.show();
     //showNextCard(aNextBuses, 0)
   }
-  main.on('click', 'select', function (e) {
+  main.on('select', function (e) {
     Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
   });
 })()
