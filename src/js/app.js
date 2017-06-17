@@ -27,7 +27,7 @@ var main = new UI.Menu({
         items: [{
             title: 'First Item',
             subtitle: 'Some subtitle',
-            icon: 'images/item_icon.png'
+            icon: 'images/menu_icon.png'
         }, {
             title: 'Second item'
         }]
