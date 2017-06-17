@@ -14,7 +14,7 @@ function buildNextBusScheduleCard(nextBusSchedule) {
  * @param {NextBusSchedule} nextBusSchedule
  */
 function buildMainMenu(nextBusSchedule) {
-    
+
     var sections = nextBusSchedule.routes.map(function (route) {
         return {
             title: route.busStop.number + " " + route.busStop.name,

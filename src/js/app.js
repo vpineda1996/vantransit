@@ -15,13 +15,13 @@ var NextBusSchedule = Model.NextBusSchedule;
 
 var Views = require('./views.js');
 
-var main = new UI.Card({
-  title: 'Pebble.js',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Hi',
-  body: 'Press any button.',
-  subtitleColor: 'indigo', // Named colors
-  bodyColor: '#9a0036' // Hex colors
+var main = new UI.Menu({
+  // title: 'Pebble.js',
+  // icon: 'images/menu_icon.png',
+  // subtitle: 'Hi',
+  // body: 'Press any button.',
+  // subtitleColor: 'indigo', // Named colors
+  // bodyColor: '#9a0036' // Hex colors
 });
 
 main.show();
