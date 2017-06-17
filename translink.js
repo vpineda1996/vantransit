@@ -61,7 +61,7 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
 
 function getNextBus(busStop, callbackSuccess, callbackFail) {
   var args = {count: 3};
-  if (busStop.routeNo) args.routeNo = busStop.route;
+  if (busStop.routeNo) args = { routeNo: busStop.route, count: 3};
   var url = api.getWithApiKey(api.stops, [busStop.number, "estimates"], args);
 
   request(url, callback, callbackFail)
