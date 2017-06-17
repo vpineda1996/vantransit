@@ -22,6 +22,16 @@ var main = new UI.Menu({
   // body: 'Press any button.',
   // subtitleColor: 'indigo', // Named colors
   // bodyColor: '#9a0036' // Hex colors
+    sections: [{
+        title: 'First section',
+        items: [{
+            title: 'First Item',
+            subtitle: 'Some subtitle',
+            icon: 'images/item_icon.png'
+        }, {
+            title: 'Second item'
+        }]
+    }]
 });
 
 main.show();
@@ -91,10 +101,10 @@ function stringifyAndLog(value) {
 //   wind.show();
 // });
 
-main.on('click', 'down', function (e) {
-  var card = new UI.Card();
-  card.title('A Card');
-  card.subtitle('Is a Window');
-  card.body('The simplest window type in Pebble.js.');
-  card.show();
-});
+// main.on('click', 'down', function (e) {
+//   var card = new UI.Card();
+//   card.title('A Card');
+//   card.subtitle('Is a Window');
+//   card.body('The simplest window type in Pebble.js.');
+//   card.show();
+// });
