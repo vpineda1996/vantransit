@@ -2,6 +2,7 @@ var UI = require('ui');
 var Vector2 = require('vector2');
 var NextBusSchedule = require('./model.js').NextBusSchedule;
 var BusStop = require('./model.js').BusStop;
+var Translink = require('./translink.js');
 /**
  *
  * @param {NextBusSchedule} nextBusSchedule
@@ -15,6 +16,85 @@ function buildNextBusScheduleCard(nextBusSchedule) {
  */
 function buildMainMenu(nextBusSchedule) {
   // TODO
+}
+
+/**
+ *
+ * @param {NextBusSchedule} dictionary
+ * @param {Array.<BusStop>} aBusStops
+ */
+function buildSavedStopsStack(dictionary, aBusStops) {
+  var aSortedBusStops = Array.from(aBusStops).sort(function (lBusStop, rBusStop) {
+    if(dictionary.proximityMap[lBusStop.number] === undefined) {
+      return -1;
+    } else if(dictionary.proximityMap[rBusStop.number] === undefined) {
+      return 1;
+    } else return dictionary.proximityMap[lBusStop.number] - dictionary.proximityMap[lBusStop.number]
+  });
+
+  return (function () {
+    var i = 0;
+    var splashScreen;
+
+    function nextWindow() {
+      if(aSortedBusStops.length > i && !splashScreen) {
+        splashScreen = buildSplashScreen();
+        splashScreen.show();
+        console.log(JSON.stringify(aSortedBusStops))
+        console.log('Index: ' + i)
+        Translink.getNextBus(aSortedBusStops[i], getBusesSuccess, getBusesFailure);
+      }
+    }
+
+    function renderNewWindow(oBusStop, index) {
+      if(splashScreen) {
+        splashScreen.hide();
+        splashScreen = undefined;
+      }
+      var window = buildBusView(dictionary, oBusStop);
+
+      window.on('click', 'down', function () {
+        i++;
+        nextWindow();
+      });
+
+      window.on('click', 'up', function () {
+        i = index - 1;
+        window.hide();
+      });
+
+      window.on('click', 'back', function () {
+        i = index - 1;
+        window.hide();
+      });
+
+      window.show();
+    }
+
+    function getBusesSuccess(aNextBus) {
+      dictionary.append(aNextBus);
+      renderNewWindow(aSortedBusStops[i], i);
+    }
+
+    function getBusesFailure() {
+      throw new Error('Cannot get buses!')
+    }
+
+    function init() {
+      nextWindow();
+    }
+
+    return { show: init };
+
+  })();
+
+}
+
+function buildSplashScreen() {
+  return new UI.Card({
+    title: 'Please wait while we get your schedule',
+    subtitleColor: 'indigo' // Named colors
+  });
 }
 
 /**
@@ -130,5 +210,7 @@ function buildBusView(dictionary, busStop) {
 module.exports = {
   buildNextBusScheduleCard: buildNextBusScheduleCard,
   buildMainMenu: buildMainMenu,
-  buildBusView: buildBusView
+  buildBusView: buildBusView,
+  buildSplashScreen: buildSplashScreen,
+  buildSavedStopsStack: buildSavedStopsStack
 }

@@ -15,39 +15,24 @@ var NextBusSchedule = Model.NextBusSchedule;
 
 var Views = require('./views.js');
 
-var main = new UI.Card({
-  title: 'Please wait while we get your schedule',
-  icon: 'images/menu_icon.png',
-  subtitle: 'Hi',
-  body: 'Press any button.',
-  subtitleColor: 'indigo', // Named colors
-  bodyColor: '#9a0036' // Hex colors
-  //   sections: [{
-  //       title: 'First section',
-  //       items: [{
-  //           title: 'First Item',
-  //           subtitle: 'Some subtitle'
-  //           // icon: 'images/menu_icon.png'
-  //       }, {
-  //           title: 'Second item'
-  //       }]
-  //   }]
-});
+var main = Views.buildSplashScreen();
+
+var busStops = [new BusStop('50363', 'Name', '007', 10), new BusStop('50363', 'Name', '007', 11)];
 
 (function(){
   var menu;
   var activateWindow = function (aNextBuses) {
-    if(!menu) menu = Views.buildBusView(new NextBusSchedule().append(aNextBuses), new BusStop('60980', 'Any', '007'));
-    main.hide();
-    menu.show();
+    Views.buildSavedStopsStack(new NextBusSchedule().append(aNextBuses), busStops).show();
+
     //showNextCard(aNextBuses, 0)
+    // main.hide();
   };
-  Translink.getNextBus(new BusStop('60980', 'Any', '007'), activateWindow, stringifyAndLog);
+  Translink.getNextBus(new BusStop('50363', 'Any'), activateWindow, stringifyAndLog);
 })();
 
 
 main.show();
 
 function stringifyAndLog(value) {
-  console.log(JSON.stringify(value));
+  console.log('Error: ' + JSON.stringify(value));
 }

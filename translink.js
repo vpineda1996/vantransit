@@ -26,6 +26,14 @@ var api = (function () {
   }
 })();
 
+/**
+ * Get nearby stops
+ * @param {number} lat
+ * @param {number} long
+ * @param {number} radius
+ * @param {Function} callbackSuccess
+ * @param {Function} callbackFail
+ */
 function getStops(lat, long, radius, callbackSuccess, callbackFail) {
   var url = api.getWithApiKey(api.stops, [], {
     lat: lat,
@@ -33,10 +41,20 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
     radius: radius
   });
 
-  request(url, callback, callbackFail)
+  request(url, callback, callbackError)
 
   function callback(xmlRes) {
     callbackSuccess(parseStopsXML(xmlRes))
+  }
+
+  function callbackError(xmlRes) {
+    var xmlDoc = xmlRes.responseXML;
+    if (xmlDoc) {
+      console.log('Response: ' + xmlRes.responseText);
+      callbackFail(xmlRes);
+    } else {
+      throw new Error('Cant parse' + xmlRes.responseText);
+    }
   }
 
   function parseStopsXML(xmlRes) {
@@ -59,15 +77,31 @@ function getStops(lat, long, radius, callbackSuccess, callbackFail) {
   }
 }
 
+/**
+ * Get the next bus schedule, route is optional
+ * @param {BusStop} busStop
+ * @param {Function} callbackSuccess
+ * @param {Function} callbackFail
+ */
 function getNextBus(busStop, callbackSuccess, callbackFail) {
   var args = {count: 3};
-  if (busStop.routeNo) args = { routeNo: busStop.route, count: 3};
+  if (busStop.route) args = { routeNo: busStop.route, count: 3};
   var url = api.getWithApiKey(api.stops, [busStop.number, "estimates"], args);
 
-  request(url, callback, callbackFail)
+  request(url, callback, callbackError)
 
   function callback(xmlRes) {
     callbackSuccess(parseNextBusXML(xmlRes))
+  }
+
+  function callbackError(xmlRes) {
+    var xmlDoc = xmlRes.responseXML;
+    if (xmlDoc) {
+      console.log('Response: ' + xmlRes.responseText);
+      callbackFail(xmlRes);
+    } else {
+      throw new Error('Cant parse' + xmlRes.responseText);
+    }
   }
 
   function parseNextBusXML(xmlRes) {
