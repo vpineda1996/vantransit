@@ -33,6 +33,7 @@ function NextBusSchedule() {
   this.allDepartures = [];
 
   this.append = function (aNextBus) {
+    this._removeOldBuses(aNextBus);
     Array.prototype.push.apply(this.allDepartures, aNextBus);
     this._appendToMaps(aNextBus);
     return this;
@@ -41,7 +42,27 @@ function NextBusSchedule() {
   this.appendStops = function (aBusStops) {
     Array.prototype.push.apply(this.proximity, aBusStops);
 
-  }
+  };
+
+  /**
+   * @param {Array.<Departure>}aNextBus
+   * @private
+   */
+  this._removeOldBuses = function (aNextBus) {
+    var that = this;
+    aNextBus.forEach(function (nb) {
+      if(that.stops[nb.busStop.number] && that.stops[nb.busStop.number][nb.routeNo]) {
+        console.log('Removing 1: ' +   JSON.stringify(that.stops[nb.busStop.number][nb.routeNo]));
+        that.stops[nb.busStop.number][nb.routeNo] = [];
+        that.allDepartures = []; // BLOW UP ALL DEPARTURES CACHE IF WE FIND A MATCH, AVOID O(n^2) behaviour
+      }
+
+      if(that.routes[nb.routeNo] && that.routes[nb.routeNo][nb.busStop.number]) {
+        console.log('Removing 2: ' +   JSON.stringify(that.routes[nb.routeNo][nb.busStop.number]));
+        that.routes[nb.routeNo][nb.busStop.number] = [];
+      }
+    })
+  };
 
   this._appendToMaps = function (aNextBus) {
     var that = this;
@@ -85,7 +106,7 @@ function NextBusSchedule() {
   this.rebuildMaps = function() {
     this.clearMaps();
     this._appendToMaps(this.allDepartures);
-  }
+  };
 
   this.clearMaps = function() {
     this.routes = {};

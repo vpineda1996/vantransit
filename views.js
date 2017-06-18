@@ -22,8 +22,10 @@ function buildMainMenu(nextBusSchedule) {
  *
  * @param {NextBusSchedule} dictionary
  * @param {Array.<BusStop>} aBusStops
+ * @param {Function} fOnFirstCardOn
+ * @param {Function} fOnFirstCardLeave
  */
-function buildSavedStopsStack(dictionary, aBusStops) {
+function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnFirstCardLeave) {
   var aSortedBusStops = Array.from(aBusStops).sort(function (lBusStop, rBusStop) {
     if(dictionary.proximityMap[lBusStop.number] === undefined) {
       return -1;
@@ -35,15 +37,43 @@ function buildSavedStopsStack(dictionary, aBusStops) {
   return (function () {
     var i = 0;
     var splashScreen;
+    var currentBusView;
 
     function nextWindow() {
       if(aSortedBusStops.length > i && !splashScreen) {
         splashScreen = buildSplashScreen();
         splashScreen.show();
-        console.log(JSON.stringify(aSortedBusStops))
-        console.log('Index: ' + i)
         Translink.getNextBus(aSortedBusStops[i], getBusesSuccess, getBusesFailure);
       }
+    }
+
+    function hideWindow(window) {
+      window.hide();
+    }
+
+    function onStackPop(window, index) {
+      i = index - 1;
+      if (fOnFirstCardLeave && index === 0) {
+        fOnFirstCardLeave();
+      }
+      hideWindow(window);
+    }
+
+    function onStackPush() {
+      i++;
+      nextWindow();
+    }
+
+    function onWindowRender(oBusView) {
+      currentBusView = oBusView;
+    }
+
+    function bindBusView(oBusView, index) {
+      oBusView.on('click', 'down', onStackPush);
+      oBusView.on('click', 'up', onStackPop.bind(null, oBusView, index));
+      oBusView.on('click', 'back', onStackPop.bind(null, oBusView, index));
+      oBusView.on('show', onWindowRender.bind(null, oBusView));
+      return oBusView;
     }
 
     function renderNewWindow(oBusStop, index) {
@@ -51,24 +81,23 @@ function buildSavedStopsStack(dictionary, aBusStops) {
         splashScreen.hide();
         splashScreen = undefined;
       }
-      var window = buildBusView(dictionary, oBusStop);
+      if (fOnFirstCardOn) {
+        fOnFirstCardOn();
+        fOnFirstCardOn = null;
+      }
 
-      window.on('click', 'down', function () {
-        i++;
-        nextWindow();
-      });
-
-      window.on('click', 'up', function () {
-        i = index - 1;
-        window.hide();
-      });
-
-      window.on('click', 'back', function () {
-        i = index - 1;
-        window.hide();
-      });
-
+      var window = bindBusView(buildBusView(dictionary, oBusStop), index);
       window.show();
+    }
+    
+    function refreshView() {
+      if(currentBusView) {
+        Translink.getNextBus(aSortedBusStops[i], function (aNewBuses) {
+          currentBusView.hide();
+          dictionary.append(aNewBuses);
+          bindBusView(buildBusView(dictionary, aSortedBusStops[i])).show();
+        }, function () {});
+      }
     }
 
     function getBusesSuccess(aNextBus) {
@@ -84,7 +113,10 @@ function buildSavedStopsStack(dictionary, aBusStops) {
       nextWindow();
     }
 
-    return { show: init };
+    return { 
+      show: init,
+      refresh: refreshView
+    };
 
   })();
 
@@ -120,8 +152,6 @@ function buildBusView(dictionary, busStop) {
     text: 'min',
     textAlign: 'left'
   });
-
-  console.log(JSON.stringify(dictionary))
 
   var andInStr = dictionary.stops[busStop.number][busStop.route].length > 1 ? 'and in '
     + dictionary.stops[busStop.number][busStop.route].slice(1, 3).map(function(a){
