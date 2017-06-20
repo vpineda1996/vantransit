@@ -1,14 +1,9 @@
-/**
- * Welcome to Pebble.js!
- *
- * This is where you write your app.
- */
-
 var UI = require('ui');
 var Vector2 = require('vector2');
 
-var Translink = require('./translink.js')
-var Model = require('./model.js')
+var Translink = require('./translink.js');
+var Model = require('./model.js');
+var AppSettings = require('./appSettings.js');
 var BusStop = Model.BusStop;
 var Departure = Model.Departure;
 var NextBusSchedule = Model.NextBusSchedule;
@@ -18,16 +13,12 @@ var Views = require('./views.js');
 var main = Views.buildSplashScreen();
 var stackView;
 var interval;
-var busStops = [new BusStop('50363', 'Name', '007', 10), new BusStop('50363', 'Name', '025', 11)];
+var busStops = AppSettings.getSavedBuses();
 
 
 function onFirstLoad() {
   main.hide();
   console.log('Setting interval');
-  interval = setInterval(function () {
-    console.log('Running interval');
-    stackView.refresh();
-  }, 45000);
 }
 
 function onExit() {
@@ -44,6 +35,16 @@ var activateWindow = function (aNextBuses) {
 Translink.getNextBus(new BusStop('50363', 'Any'), activateWindow, stringifyAndLog);
 
 main.show();
+
+navigator.geolocation.getCurrentPosition(function (pos) {
+    console.log(pos.coords.latitude + ", " + pos.coords.longitude)
+}, function () {
+
+},{
+    enableHighAccuracy: false,
+    maximumAge: 10000,
+    timeout: 10000
+});
 
 function stringifyAndLog(value) {
   console.log('Error: ' + JSON.stringify(value));
