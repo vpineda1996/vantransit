@@ -12,18 +12,14 @@ var Views = require('./views.js');
 
 var main = Views.buildSplashScreen();
 var stackView;
-var interval;
 var busStops = AppSettings.getSavedBuses();
 
 
 function onFirstLoad() {
   main.hide();
-  console.log('Setting interval');
 }
 
 function onExit() {
-  console.log('Stop interval');
-  if (interval) clearInterval(interval);
   Views.buildSplashScreen().show();
 }
 
