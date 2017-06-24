@@ -3,19 +3,78 @@ var Vector2 = require('vector2');
 var NextBusSchedule = require('./model.js').NextBusSchedule;
 var BusStop = require('./model.js').BusStop;
 var Translink = require('./translink.js');
-/**
- *
- * @param {NextBusSchedule} nextBusSchedule
- */
-function buildNextBusScheduleCard(nextBusSchedule) {
 
+function buildLocationMenu(oLatLon, onMenuLoad, fOnUpButtonLeavePressed) {
+  return {
+    show: null,
+    refresh: null
+  }
 }
-/**
- *
- * @param {NextBusSchedule} nextBusSchedule
- */
-function buildMainMenu(nextBusSchedule) {
-  // TODO
+
+function buildMainMenu(aBusStops, oLatLon) {
+  return (function () {
+    var currentView;
+
+    function onLeaveBusStack() {
+      showLocationMenu();
+    }
+
+    function onBusStackOpen() {}
+
+    function showBusStack() {
+      currentView = buildSavedStopsStack(new NextBusSchedule(), aBusStops, onBusStackOpen, onLeaveBusStack);
+      if(currentView) {
+        currentView.show();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function onLocationMenuDisplay() {
+
+    }
+
+    function onLeaveLocationMenu() {
+      showBusStack();
+    }
+
+    function showLocationMenu() {
+      currentView = buildLocationMenu(oLatLon, onLocationMenuDisplay, onLeaveLocationMenu);
+      if (currentView) {
+        currentView.show();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function init() {
+      if(!showBusStack()){
+        var eWindow = buildErrorWindow('No saved bus stops!, press up to find one');
+        eWindow.on('click', 'up', showLocationMenu);
+        eWindow.show();
+      }
+    }
+
+    function refresh() {
+      if (stack) stack.refresh();
+    }
+
+
+    return {
+      init: init,
+      refresh: refresh
+    }
+  })();
+}
+
+function buildErrorWindow(error) {
+  return new UI.Card({
+    title: error,
+    titleColor: 'white',
+    backgroundColor: 'red' // Named colors
+  });
 }
 
 /**
@@ -23,40 +82,45 @@ function buildMainMenu(nextBusSchedule) {
  * @param {NextBusSchedule} dictionary
  * @param {Array.<BusStop>} aBusStops
  * @param {Function} fOnFirstCardOn
- * @param {Function} fOnFirstCardLeave
+ * @param {Function} fOnUpButtonLeavePressed
  */
-function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnFirstCardLeave) {
+function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnUpButtonLeavePressed) {
   var aSortedBusStops = Array.from(aBusStops).sort(function (lBusStop, rBusStop) {
-    if(dictionary.proximityMap[lBusStop.number] === undefined) {
+    if (dictionary.proximityMap[lBusStop.number] === undefined) {
       return -1;
-    } else if(dictionary.proximityMap[rBusStop.number] === undefined) {
+    } else if (dictionary.proximityMap[rBusStop.number] === undefined) {
       return 1;
     } else return dictionary.proximityMap[lBusStop.number] - dictionary.proximityMap[lBusStop.number]
   });
 
+  if (!aBusStops || aBusStops.length === 0) return null;
   return (function () {
     var i = 0;
     var splashScreen;
     var currentBusView;
 
     function nextWindow() {
-      if(aSortedBusStops.length > i && !splashScreen) {
-        splashScreen = buildSplashScreen();
+      if (aSortedBusStops.length > i && !splashScreen) {
+        splashScreen = buildSplashScreen('Please wait while we get your schedule');
         splashScreen.show();
         Translink.getNextBus(aSortedBusStops[i], getBusesSuccess, getBusesFailure);
       }
     }
 
-    function hideWindow(window) {
+    function onStackPop(window, index) {
+      i = index - 1;
       window.hide();
     }
 
-    function onStackPop(window, index) {
-      i = index - 1;
-      if (fOnFirstCardLeave && index === 0) {
-        fOnFirstCardLeave();
+    function onBackButtonPressed(window, index) {
+      onStackPop(window, index)
+    }
+
+    function onUpButtonPressed(window, index) {
+      if (fOnUpButtonLeavePressed && index === 0) {
+        fOnUpButtonLeavePressed();
       }
-      hideWindow(window);
+      onStackPop(window, index)
     }
 
     function onStackPush() {
@@ -70,14 +134,14 @@ function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnFirstCar
 
     function bindBusView(oBusView, index) {
       oBusView.on('click', 'down', onStackPush);
-      oBusView.on('click', 'up', onStackPop.bind(null, oBusView, index));
-      oBusView.on('click', 'back', onStackPop.bind(null, oBusView, index));
+      oBusView.on('click', 'up', onUpButtonPressed.bind(null, oBusView, index));
+      oBusView.on('click', 'back', onBackButtonPressed.bind(null, oBusView, index));
       oBusView.on('show', onWindowRender.bind(null, oBusView));
       return oBusView;
     }
 
     function renderNewWindow(oBusStop, index) {
-      if(splashScreen) {
+      if (splashScreen) {
         splashScreen.hide();
         splashScreen = undefined;
       }
@@ -89,14 +153,14 @@ function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnFirstCar
       var window = bindBusView(buildBusView(dictionary, oBusStop), index);
       window.show();
     }
-    
+
     function refreshView() {
-      if(currentBusView) {
+      if (currentBusView) {
         Translink.getNextBus(aSortedBusStops[i], function (aNewBuses) {
           currentBusView.hide();
           dictionary.append(aNewBuses);
           bindBusView(buildBusView(dictionary, aSortedBusStops[i])).show();
-        }, function () {});
+        }, getBusesFailure);
       }
     }
 
@@ -113,18 +177,17 @@ function buildSavedStopsStack(dictionary, aBusStops, fOnFirstCardOn, fOnFirstCar
       nextWindow();
     }
 
-    return { 
+    return {
       show: init,
       refresh: refreshView
     };
 
   })();
-
 }
 
-function buildSplashScreen() {
+function buildSplashScreen(title) {
   return new UI.Card({
-    title: 'Please wait while we get your schedule',
+    title: title,
     subtitleColor: 'indigo' // Named colors
   });
 }
@@ -154,8 +217,8 @@ function buildBusView(dictionary, busStop) {
   });
 
   var andInStr = dictionary.stops[busStop.number][busStop.route].length > 1 ? 'and in '
-    + dictionary.stops[busStop.number][busStop.route].slice(1, 3).map(function(a){
-        return a.nextBusIn
+    + dictionary.stops[busStop.number][busStop.route].slice(1, 3).map(function (a) {
+      return a.nextBusIn
     }).join(", ") + ' min' : "";
 
   var andIn = new UI.Text({
@@ -238,7 +301,6 @@ function buildBusView(dictionary, busStop) {
 }
 
 module.exports = {
-  buildNextBusScheduleCard: buildNextBusScheduleCard,
   buildMainMenu: buildMainMenu,
   buildBusView: buildBusView,
   buildSplashScreen: buildSplashScreen,
