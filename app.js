@@ -10,7 +10,7 @@ var Views = require('./views.js');
 function getLocation(f) {
   navigator.geolocation.getCurrentPosition(function (pos) {
     console.log(pos.coords.latitude + ", " + pos.coords.longitude);
-    f(pos.coords.latitude, pos.coords.longitude)
+    f(pos.coords.latitude, pos.coords.longitude);
   }, function () {},{
     enableHighAccuracy: false,
     maximumAge: 10000,
